@@ -12,7 +12,7 @@ index bc59afc..dd60930 100644
  	#endif
  	#define VMA_STATIC_VULKAN_FUNCTIONS 0
 diff --git a/Backends/RmlUi_Renderer_VK.cpp b/Backends/RmlUi_Renderer_VK.cpp
-index ad9bb3b..f91958e 100644
+index ad9bb3b..ee1396a 100644
 --- a/Backends/RmlUi_Renderer_VK.cpp
 +++ b/Backends/RmlUi_Renderer_VK.cpp
 @@ -1,4 +1,15 @@
@@ -31,7 +31,7 @@ index ad9bb3b..f91958e 100644
  #include "RmlUi_Vulkan/ShadersCompiledSPV.h"
  #include <RmlUi/Core/Core.h>
  #include <RmlUi/Core/FileInterface.h>
-@@ -774,7 +785,7 @@ bool RenderInterface_VK::Initialize(Rml::Vector<const char*> required_extensions
+@@ -774,22 +785,30 @@ bool RenderInterface_VK::Initialize(Rml::Vector<const char*> required_extensions
  	RMLUI_ZoneScopedN("Vulkan - Initialize");
  
  	int glad_result = 0;
@@ -40,7 +40,15 @@ index ad9bb3b..f91958e 100644
  	RMLUI_VK_ASSERTMSG(glad_result != 0, "Vulkan loader failed - Global functions");
  
  	Initialize_Instance(std::move(required_extensions));
-@@ -782,14 +793,14 @@ bool RenderInterface_VK::Initialize(Rml::Vector<const char*> required_extensions
+ 
++#if defined(RMLUI_VK_EXTERNAL_LOADER)
++	// glad's own loader also takes every core function from the Vulkan library, so the physical device
++	// is chosen below with functions it had before there was an instance. A driver's
++	// vkGetInstanceProcAddr gives instance functions only for an instance: load them with it first.
++	glad_result = RMLUI_VK_LOADER_LOAD(m_p_instance, VK_NULL_HANDLE, VK_NULL_HANDLE);
++	RMLUI_VK_ASSERTMSG(glad_result != 0, "Vulkan loader failed - Instance functions for the physical device");
++#endif
++
  	VkPhysicalDeviceProperties physical_device_properties = {};
  	Initialize_PhysicalDevice(physical_device_properties);
  
@@ -57,7 +65,7 @@ index ad9bb3b..f91958e 100644
  	RMLUI_VK_ASSERTMSG(glad_result != 0, "Vulkan loader failed - Device functions");
  
  	Initialize_Queues();
-@@ -818,7 +829,7 @@ void RenderInterface_VK::Shutdown()
+@@ -818,7 +837,7 @@ void RenderInterface_VK::Shutdown()
  	Destroy_ReportDebugCallback();
  	Destroy_Instance();
  

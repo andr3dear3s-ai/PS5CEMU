@@ -34,6 +34,7 @@
 #include "input/InputManager.h"
 #include "util/crypto/aes128.h"
 
+#include <cstdlib>
 #include <fstream>
 
 extern "C" int32_t sceSystemServiceParamGetInt(int32_t paramId, int32_t* value);
@@ -145,13 +146,13 @@ namespace ps5emu
 				config.game_paths = {ps5paths::kGames};
 		}
 
-		// The community graphic packs bundled with the app (/app0/assets/graphicPacks, with its
+		// The community graphic packs bundled with the app (assets/graphicPacks, with its
 		// version.txt) go where Cemu's own downloader puts them, once per bundled release. Packs of
 		// your own elsewhere in graphicPacks/ are left alone.
 		void InstallBundledGraphicPacks()
 		{
 			std::error_code ec;
-			const fs::path bundled = ps5paths::kBundledGraphicPacks;
+			const fs::path bundled = ps5paths::BundledGraphicPacks();
 			const fs::path target = ActiveSettings::GetUserDataPath("graphicPacks/downloadedGraphicPacks");
 			std::string bundledVersion, installedVersion;
 			{
@@ -233,8 +234,8 @@ namespace ps5emu
 	bool InitializeCore(std::string& error)
 	{
 		std::set<fs::path> failedWriteAccess;
-		ActiveSettings::SetPaths(false, ps5paths::kEboot, ps5paths::kRoot, ps5paths::kRoot, ps5paths::kCache,
-			ps5paths::kCemuData, failedWriteAccess);
+		ActiveSettings::SetPaths(false, ps5paths::Eboot(), ps5paths::kRoot, ps5paths::kRoot, ps5paths::kCache,
+			ps5paths::CemuData(), failedWriteAccess);
 		if (!failedWriteAccess.empty())
 		{
 			error = fmt::format("PS5Cemu cannot write to {}. Is the HEN loaded?", _pathToUtf8(*failedWriteAccess.begin()));
@@ -244,6 +245,9 @@ namespace ps5emu
 		CreateDirectories(ActiveSettings::GetConfigPath("controllerProfiles"));
 		CreateDirectories(ps5paths::kGames);
 		CreateDirectories(ps5paths::kLogs);
+		ps5log::Line("[emu] app folder: {}", ps5paths::AppDir());
+		// RADV keeps its shader cache in /app0 unless told otherwise, and a jailbroken process has none
+		setenv("MESA_SHADER_CACHE_DIR", ps5paths::kRadvCache, 1);
 
 		GetConfigHandle().SetFilename(ActiveSettings::GetConfigPath("settings.xml").generic_wstring());
 		std::error_code ec;
@@ -441,8 +445,8 @@ namespace ps5emu
 		ps5log::Line("[emu] back to the library: starting PS5Cemu over");
 		GetConfigHandle().Save();
 		std::error_code ec;
-		const char* eboot = fs::exists(ps5paths::kMountedEboot, ec) ? ps5paths::kMountedEboot : ps5paths::kEboot;
-		const int result = sceSystemServiceLoadExec(eboot, nullptr);
+		const std::string eboot = fs::exists(ps5paths::kMountedEboot, ec) ? ps5paths::kMountedEboot : ps5paths::Eboot();
+		const int result = sceSystemServiceLoadExec(eboot.c_str(), nullptr);
 		// it does not come back when it works; allow for one that returns before ending the process
 		if (result == 0)
 			for (int i = 0; i < 100; i++)

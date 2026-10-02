@@ -3,7 +3,9 @@
 //
 // Upstream, RmlUi's glad loader dlopens libvulkan. On the PS5 the driver is linked into the title,
 // so glad gets every function from RADV's vkGetInstanceProcAddr (and, once there is a device, its
-// vkGetDeviceProcAddr), as the loader would hand them out.
+// vkGetDeviceProcAddr), as the loader would hand them out. Without an instance that gives only the
+// global commands (glad's own loader has the rest from the library), so the renderer loads again
+// as soon as vkCreateInstance has made one, before it picks the physical device (patches/rmlui/0001).
 
 #include "RmlUi_Include_Vulkan.h"
 

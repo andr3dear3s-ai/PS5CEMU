@@ -111,7 +111,7 @@ namespace ps5ui
 {
 	std::string AssetPath(const std::string& relative)
 	{
-		return std::string(ps5paths::kAssets) + "/ui/" + relative;
+		return ps5paths::Assets() + "/ui/" + relative;
 	}
 
 	bool Start(std::string& error)

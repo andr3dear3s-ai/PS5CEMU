@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// PS5Cemu: the launcher's drawing. RmlUi lays out /app0/assets/ui/main.rml (ProsperoEden's layout,
+// PS5Cemu: the launcher's drawing. RmlUi lays out the app's assets/ui/main.rml (ProsperoEden's layout,
 // fonts and artwork, adapted) at 1920x1080 and its Vulkan renderer draws it at twice the size on
 // VideoOut through RADV, the driver Cemu's renderer uses after it. Everything is torn down before a game starts, so
 // Cemu's renderer finds VideoOut free.
@@ -22,6 +22,6 @@ namespace ps5ui
 	void Frame();
 	// Everything Start made, Vulkan included.
 	void Stop();
-	// A file of the launcher's (fonts, artwork, styles) from its path below /app0/assets/ui.
+	// A file of the launcher's (fonts, artwork, styles) from its path below the app's assets/ui.
 	std::string AssetPath(const std::string& relative);
 }
