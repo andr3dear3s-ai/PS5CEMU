@@ -1,0 +1,80 @@
+name: Build PS5CEMU
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+
+    steps:
+      - name: Check out PS5CEMU
+        uses: actions/checkout@v4
+
+      - name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            ca-certificates \
+            git \
+            make \
+            cmake \
+            ninja-build \
+            python3 \
+            python3-pip \
+            clang-18 \
+            lld-18 \
+            llvm-18 \
+            rsync \
+            flex \
+            glslang-tools \
+            llvm-18-dev \
+            libclang-18-dev \
+            libclc-18-dev \
+            libllvmspirvlib-18-dev \
+            llvm-spirv-18 \
+            spirv-tools \
+            pkg-config \
+            zip \
+            unzip
+
+      - name: Install Meson Python dependencies
+        run: |
+          python3 -m pip install --user --break-system-packages meson mako packaging
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Show tool versions
+        run: |
+          clang-18 --version
+          lld-18 --version
+          cmake --version
+          ninja --version
+          meson --version
+          python3 --version
+          make --version
+
+      - name: Build PS5CEMU release
+        run: |
+          make release JOBS=2
+
+      - name: Verify release files
+        run: |
+          test -f dist/PS5Cemu-v0.1.0.zip
+          test -f dist/SHA256SUMS
+          cat dist/SHA256SUMS
+          unzip -l dist/PS5Cemu-v0.1.0.zip | head -50
+
+      - name: Upload PS5CEMU build
+        uses: actions/upload-artifact@v4
+        with:
+          name: PS5CEMU-v0.1.0-PS5
+          path: |
+            dist/PS5Cemu-v0.1.0.zip
+            dist/SHA256SUMS
+          if-no-files-found: error
+          compression-level: 0
