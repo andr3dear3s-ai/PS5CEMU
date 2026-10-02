@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Check out PS5CEMU
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Linux build dependencies
         run: |
@@ -51,7 +51,7 @@ jobs:
       - name: Show tool versions
         run: |
           clang-18 --version
-          lld-18 --version
+          ld.lld-18 --version
           cmake --version
           ninja --version
           meson --version
