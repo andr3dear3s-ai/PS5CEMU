@@ -26,8 +26,10 @@ namespace
 
 extern "C"
 {
-	// Saves the current context, stores its stack pointer in *from and resumes the one at to.
-	void PS5Cemu_FiberSwitch(void** from, void* to);
+	// Saves the current context, stores its stack pointer in *from and resumes the one *to holds.
+	// *to is read after the save, so a fiber that switches to itself carries on where it is, as
+	// with swapcontext: Cemu's scheduler does that when the thread that yields is the next to run.
+	void PS5Cemu_FiberSwitch(void** from, void* const* to);
 	// First code a new fiber runs: R12 holds the entry point and R13 its parameter.
 	void PS5Cemu_FiberStart();
 }
@@ -48,7 +50,7 @@ asm(".text\n"
 	"	stmxcsr (%rsp)\n"
 	"	fnstcw 4(%rsp)\n"
 	"	mov %rsp, (%rdi)\n"
-	"	mov %rsi, %rsp\n"
+	"	mov (%rsi), %rsp\n"
 	"	ldmxcsr (%rsp)\n"
 	"	fldcw 4(%rsp)\n"
 	"	add $8, %rsp\n"
@@ -126,7 +128,7 @@ void Fiber::Switch(Fiber& targetFiber)
 	sCurrentFiber = &targetFiber;
 	std::atomic_thread_fence(std::memory_order_seq_cst);
 	PS5Cemu_FiberSwitch(&static_cast<FiberContext*>(leavingFiber->m_implData)->stackPointer,
-		static_cast<FiberContext*>(targetFiber.m_implData)->stackPointer);
+		&static_cast<FiberContext*>(targetFiber.m_implData)->stackPointer);
 	std::atomic_thread_fence(std::memory_order_seq_cst);
 }
 

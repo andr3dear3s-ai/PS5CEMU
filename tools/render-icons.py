@@ -111,7 +111,7 @@ def write_png(path, rows):
 
 def write_tga(path, rows):
     size = len(rows)
-    # uncompressed true colour, 32 bits, 8 of alpha, top-down: what RmlUi's Vulkan renderer reads
+    # uncompressed true colour, 32 bits, 8 of alpha, top-down: what the launcher reads (frontend/ui_host.cpp)
     header = struct.pack("<BBBHHBHHHHBB", 0, 0, 2, 0, 0, 0, 0, 0, size, size, 32, 0x28)
     with open(path, "wb") as out:
         out.write(header + b"".join(bytes((p[2], p[1], p[0], p[3])) for row in rows for p in row))

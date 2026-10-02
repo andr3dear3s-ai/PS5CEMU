@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="PS5Cemu: Cemu, the Wii U emulator, on PlayStation 5 homebrew">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#173a31"/>
+      <stop offset="1" stop-color="#050d0b"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="192.0" cy="165.44" r="168.64" gradientUnits="userSpaceOnUse" gradientTransform="translate(0 165.44) scale(1 0.62) translate(0 -165.44)">
+      <stop offset="0" stop-color="#a9db63" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#a9db63" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1d4a3c"/>
+      <stop offset="1" stop-color="#0b1c17"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="5.4" stdDeviation="5.4" flood-color="#000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="320" rx="28" fill="url(#tile)"/>
+  <rect width="1280" height="320" rx="28" fill="url(#glow)"/>
+  <rect x="83.2" y="112.4" width="217.6" height="111.52" rx="23.12" fill="#f0f5f2" filter="url(#shadow)"/>
+  <rect x="136.24" y="126.0" width="111.52" height="78.88" rx="5.44" fill="#a9db63"/>
+  <rect x="140.32" y="130.08" width="103.36" height="70.72" rx="3.81" fill="url(#screen)"/>
+  <polygon points="183.84,152.24 183.84,178.64 208.32,165.44" fill="#a9db63"/>
+  <circle cx="103.6" cy="140.96" r="10.88" fill="#5f6e66"/>
+  <circle cx="103.6" cy="140.96" r="6.53" fill="#f0f5f2"/>
+  <circle cx="280.4" cy="140.96" r="10.88" fill="#5f6e66"/>
+  <circle cx="280.4" cy="140.96" r="6.53" fill="#f0f5f2"/>
+  <rect x="91.36" y="179.31" width="24.48" height="7.62" rx="1.36" fill="#5f6e66"/>
+  <rect x="99.79" y="170.88" width="7.62" height="24.48" rx="1.36" fill="#5f6e66"/>
+  <circle cx="280.4" cy="172.24" r="4.62" fill="#a9db63"/>
+  <circle cx="289.92" cy="183.12" r="4.62" fill="#5f6e66"/>
+  <circle cx="270.88" cy="183.12" r="4.62" fill="#5f6e66"/>
+  <circle cx="280.4" cy="194.0" r="4.62" fill="#5f6e66"/>
+  <text x="368" y="152" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="104" font-weight="800" letter-spacing="-1" fill="#f0f5f2">PS5Cemu</text>
+  <text x="372" y="206" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="30" font-weight="600" fill="#a9db63">Cemu, the Wii U emulator, on PlayStation 5 homebrew</text>
+  <text x="372" y="252" font-family="'Segoe UI', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="22" fill="#8fa89c">Vulkan on RADV · DualSense as the GamePad · community graphic packs</text>
+</svg>

@@ -114,21 +114,3 @@ namespace ps5vk
 		return surface;
 	}
 }
-
-extern "C" void* PS5Vk_GetInstanceProcAddrRaw()
-{
-	return reinterpret_cast<void*>(ps5vk::GetInstanceProcAddr());
-}
-
-extern "C" bool PS5Vk_CreateDisplaySurfaceRaw(void* instance, uint64_t* surfaceOut)
-{
-	std::string error;
-	const VkSurfaceKHR surface = ps5vk::CreateDisplaySurface(static_cast<VkInstance>(instance), error);
-	if (surface == VK_NULL_HANDLE)
-	{
-		ps5log::Line("[vulkan] {}", error);
-		return false;
-	}
-	*surfaceOut = reinterpret_cast<uint64_t>(surface);
-	return true;
-}

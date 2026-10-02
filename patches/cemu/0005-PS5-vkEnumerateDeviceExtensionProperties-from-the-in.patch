@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ps5cemu <ps5cemu@localhost>
+Date: Fri, 2 Oct 2026 01:46:20 +0000
+Subject: [PATCH] PS5: vkEnumerateDeviceExtensionProperties from the instance
+
+Cemu's table has vkEnumerateDeviceExtensionProperties among the global
+commands, which on the desktop come from the loader library. The PS5's
+driver gives it out only for an instance, as it does vkGetDeviceProcAddr,
+so InitializeInstanceVulkan takes both from the instance: the renderer's
+device check (CheckDeviceExtensionSupport) called it through a null
+pointer, right after the display surface was made.
+---
+ src/Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.cpp | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/src/Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.cpp b/src/Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.cpp
+index e10dd96..0854788 100644
+--- a/src/Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.cpp
++++ b/src/Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.cpp
+@@ -171,9 +171,11 @@ bool InitializeInstanceVulkan(VkInstance instance)
+ 	#define VKFUNC_INSTANCE_INIT
+ 	#include "Cafe/HW/Latte/Renderer/Vulkan/VulkanAPI.h"
+ 
+-	// a global command per Cemu's table, but only an instance can give it out
++	// global commands per Cemu's table, which a loader exports, but only an instance can give them out
+ 	vkGetDeviceProcAddr = (PFN_vkGetDeviceProcAddr)vkGetInstanceProcAddr(instance, "vkGetDeviceProcAddr");
+-	return vkGetDeviceProcAddr != nullptr;
++	vkEnumerateDeviceExtensionProperties =
++		(PFN_vkEnumerateDeviceExtensionProperties)vkGetInstanceProcAddr(instance, "vkEnumerateDeviceExtensionProperties");
++	return vkGetDeviceProcAddr != nullptr && vkEnumerateDeviceExtensionProperties != nullptr;
+ }
+ 
+ bool InitializeDeviceVulkan(VkDevice device)

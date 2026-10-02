@@ -2,8 +2,8 @@
 // PS5Cemu: game icons for the launcher (emulator.h, CoverPath).
 //
 // The title is mounted and meta/iconTex.tga read as Cemu's game list does it
-// (wxGameList::AsyncWorkerThread), so this file keeps Cemu's MPL-2.0 licence. The launcher's
-// renderer (RmlUi's Vulkan backend) reads only uncompressed 24/32-bit TGAs, while icons may be
+// (wxGameList::AsyncWorkerThread), so this file keeps Cemu's MPL-2.0 licence. The launcher
+// (frontend/ui_host.cpp) reads only uncompressed 32-bit top-down TGAs, while icons may be
 // run-length encoded or bottom-up, so each is rewritten once as a 32-bit top-down TGA.
 
 #include "emulator.h"

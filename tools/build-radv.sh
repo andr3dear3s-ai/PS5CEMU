@@ -10,9 +10,10 @@
 # PS5_PAYLOAD_SDK_FORK names another checkout that has the revision PS5_Vulkan's
 # tools/setup-native-dependencies.sh pins.
 #
-# Host tools, as PS5_Vulkan's recipe needs them: meson, mako, ninja, rsync, and for Mesa's OpenCL
-# kernels LLVM, Clang, libclc and the SPIR-V LLVM translator (on Ubuntu: llvm-18-dev,
-# libclang-18-dev, libclc-18-dev, libllvmspirvlib-18-dev, llvm-spirv-18).
+# Host tools, as PS5_Vulkan's recipe needs them: meson, mako and Python's packaging (Mesa checks
+# mako's version with it), ninja, rsync, glslangValidator (glslang-tools: RADV's BVH shaders), and
+# for Mesa's OpenCL kernels LLVM, Clang, libclc and the SPIR-V LLVM translator (on Ubuntu:
+# llvm-18-dev, libclang-18-dev, libclc-18-dev, libllvmspirvlib-18-dev, llvm-spirv-18).
 #
 # A RADV built elsewhere can be used instead: RADV_ARCHIVE (libvulkan_radeon.ps5.a) and RADV_SDK
 # (the fork's SDK it was built with) name it to tools/link.sh.

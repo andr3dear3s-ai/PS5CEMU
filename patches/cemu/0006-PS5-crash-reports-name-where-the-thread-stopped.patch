@@ -1,0 +1,88 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: ps5cemu <ps5cemu@localhost>
+Date: Fri, 2 Oct 2026 02:09:13 +0000
+Subject: [PATCH] PS5: crash reports name where the thread stopped
+
+On the desktop the crash handler's backtrace goes to stderr, which the
+console does not keep, and the eboot carries no symbols. On the PS5 the
+handler also writes to log.txt the fault address, its own address (which
+gives the eboot's load address), the machine context as it stands (the
+console's layout is not quite FreeBSD's) and the words on the faulting
+thread's stack that point into the eboot's code, from the handler's frame
+up to the top of that stack. With them a crash can be looked up in the
+ELF.
+---
+ .../ExceptionHandler_posix.cpp                | 54 +++++++++++++++++++
+ 1 file changed, 54 insertions(+)
+
+diff --git a/src/Common/ExceptionHandler/ExceptionHandler_posix.cpp b/src/Common/ExceptionHandler/ExceptionHandler_posix.cpp
+index 7afbf19..4775759 100644
+--- a/src/Common/ExceptionHandler/ExceptionHandler_posix.cpp
++++ b/src/Common/ExceptionHandler/ExceptionHandler_posix.cpp
+@@ -1,5 +1,9 @@
+ #include <signal.h>
+ #include <execinfo.h>
++#if defined(CEMU_PS5)
++#include <pthread.h>
++#include <pthread_np.h>
++#endif
+ #include <string.h>
+ #include <string>
+ #include "config/CemuConfig.h"
+@@ -100,6 +104,56 @@ void handlerDumpingSignal(int sig, siginfo_t *info, void *context)
+ #endif
+ 
+     CrashLog_WriteLine(fmt::format("Error: signal {}:", sig));
++#if defined(CEMU_PS5)
++	// The console keeps no stderr and the eboot no symbols, so this goes to log.txt: the fault
++	// address, this handler's own address (which gives the eboot's load address), the machine
++	// context as it stands (the console's layout is not quite FreeBSD's), and the words that point
++	// into the eboot's code on this thread's stack, from this handler's frame up to the top of the
++	// stack: the signal's frame sits below the frames it interrupted, so their return addresses are
++	// among them. With them the crash can be looked up in the ELF.
++	{
++		const uintptr_t self = (uintptr_t)&handlerDumpingSignal;
++		const uint64* machine = (const uint64*)&((const ucontext_t*)context)->uc_mcontext;
++		std::string words;
++		for (int i = 0; i < 32; i++)
++			words += fmt::format(" {:x}", machine[i]);
++		CrashLog_WriteLine(fmt::format("PS5: fault address {:#x}, handler at {:#x}", (uintptr_t)info->si_addr, self));
++		CrashLog_WriteLine("PS5: machine context:" + words);
++		const uintptr_t here = (uintptr_t)&words & ~(uintptr_t)7;
++		uintptr_t top = here + 16 * 1024;
++		bool bounded = false;
++		pthread_attr_t attributes;
++		if (pthread_attr_init(&attributes) == 0)
++		{
++			void* stackAddress = nullptr;
++			size_t stackSize = 0;
++			if (pthread_attr_get_np(pthread_self(), &attributes) == 0 &&
++				pthread_attr_getstackaddr(&attributes, &stackAddress) == 0 &&
++				pthread_attr_getstacksize(&attributes, &stackSize) == 0 && here >= (uintptr_t)stackAddress &&
++				here < (uintptr_t)stackAddress + stackSize)
++			{
++				top = std::min<uintptr_t>((uintptr_t)stackAddress + stackSize, here + 512 * 1024);
++				bounded = true;
++			}
++			pthread_attr_destroy(&attributes);
++		}
++		const uintptr_t low = self > 0x3000000 ? self - 0x3000000 : 0x10000, high = self + 0x3000000;
++		std::string frames;
++		int found = 0;
++		for (uintptr_t at = here; at + 8 <= top && found < 96; at += 8)
++		{
++			const uintptr_t word = *(const uintptr_t*)at;
++			if (word >= low && word < high)
++			{
++				frames += fmt::format(" {:x}", word);
++				found++;
++			}
++		}
++		CrashLog_WriteLine(fmt::format("PS5: code addresses on the stack ({} bytes{}):{}", top - here,
++			bounded ? "" : ", stack bounds unknown", frames));
++		cemuLog_waitForFlush();
++	}
++#endif
+ 
+ #if BOOST_OS_LINUX
+ 	char** symbol_trace = backtrace_symbols(backtraceArray, size);

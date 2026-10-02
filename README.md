@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/banner.svg" alt="PS5Cemu: Cemu, the Wii U emulator, on PlayStation 5 homebrew" width="100%">
+</p>
+
 # PS5Cemu
 
 **An unofficial port of [Cemu](https://github.com/cemu-project/Cemu), the Wii U emulator, to PlayStation 5 homebrew.**
@@ -9,10 +13,11 @@ emulator belongs to the Cemu team and its contributors. PS5Cemu is not affiliate
 by the Cemu project, Nintendo or Sony.
 
 > [!WARNING]
-> **Status: builds into a complete app, not yet run on a console.** `make release` builds RADV,
-> Cemu, the port and the launcher for the PS5 and packages a signed `eboot.bin` with everything
-> the app needs. Nothing here has been tested on hardware yet. Expect the first console runs to
-> need fixes.
+> **Status: the launcher runs on a console and starts games; none has been played yet.**
+> `make release` builds RADV, Cemu, the port and the launcher for the PS5 and packages a signed
+> `eboot.bin` with everything the app needs. On a console with etaHEN, PS5Cemu starts into the
+> launcher, lists the games it can read and starts them: The Wind Waker HD loads and its threads
+> run. Playing a game is still untested: expect it to need fixes.
 
 ## Features
 
@@ -81,10 +86,10 @@ hardware and software you own.
 The build runs on Linux and needs:
 - `clang-18`, `lld-18` and the LLVM 18 tools;
 - `cmake`, `ninja`, `git`, `make` and `python3`;
-- for RADV: `meson`, Python's `mako`, `rsync`, and LLVM, Clang, libclc, SPIRV-Tools and the SPIR-V
-  translator for Mesa's OpenCL kernels. On Ubuntu 24.04: `pip install meson mako`, then
-  `apt install rsync flex llvm-18-dev libclang-18-dev libclc-18-dev libllvmspirvlib-18-dev
-  llvm-spirv-18 spirv-tools`.
+- for RADV: `meson`, Python's `mako` and `packaging`, `rsync`, `glslangValidator`, and LLVM, Clang,
+  libclc, SPIRV-Tools and the SPIR-V translator for Mesa's OpenCL kernels. On Ubuntu 24.04:
+  `pip install meson mako packaging`, then `apt install rsync flex glslang-tools llvm-18-dev
+  libclang-18-dev libclc-18-dev libllvmspirvlib-18-dev llvm-spirv-18 spirv-tools`.
 
 ```bash
 make radv      # builds RADV, the Vulkan driver
@@ -98,7 +103,7 @@ pinned inputs:
 - Cemu
 - the PS5 Native App Boilerplate (payload SDK, runtime, packaging tool)
 - pacbrew's prebuilt PS5 libraries
-- Boost, pugixml, libzip, glslang, RapidJSON, RmlUi
+- Boost, pugixml, libzip, glslang, RapidJSON
 - Mihawk-99's PS5_Mesa, PS5_Vulkan and payload SDK fork
 - compiler-rt's emulated TLS and CPU-model builtins
 - the community graphic packs
@@ -119,10 +124,9 @@ links and packages, but its output (`build/app-check`) is not an app.
 | `port/ps5/` | The console layer: the DualSense, VideoOut through Vulkan, logging, notifications, sandbox escape and JIT |
 | `port/cemu/` | Cemu's platform classes for the PS5: memory mapper, fibers, AudioOut, the DualSense controller, and a Microsoft-ABI bridge for the recompiler, since the PS5 target has no `ms_abi` |
 | `port/app/` | Cemu's start-up without wxWidgets, the game list, game icons, graphic packs |
-| `port/frontend/` | The launcher, on RmlUi's Vulkan renderer through RADV |
+| `port/frontend/` | The launcher: RmlUi drawn in software and shown on VideoOut through SDL, as ProsperoEden does |
 | `port/main_ps5.cpp` | The entry point: sandbox escape, logs, Cemu's core, the launcher, the game |
 | `patches/cemu/` | The port's changes to Cemu's own files (`tools/cemu-patches.sh apply` or `export`) |
-| `patches/rmlui/` | RmlUi's Vulkan renderer: its functions come from the driver instead of a loader, and it stops cleanly without a display surface |
 | `tools/` | Dependencies, the builds, the PS5 link (`link.sh`) and the packaging (`package.sh`) |
 | `sce_sys/` | The title's `param.json`. The icons are drawn by `tools/render-icons.py` |
 
@@ -137,9 +141,11 @@ by Alex Free. It is kept in this repository with its own readme and licence.
 ## Credits
 
 - **Cemu**, by the Cemu team and contributors (MPL-2.0).
-- **ProsperoEden** by BlackBearReloaded: the launcher's design, artwork, fonts, bitmap font engine
-  and folder browser, and the **PS5 Native App Boilerplate**: runtime, packaging tool, sandbox
-  elevation.
+- **ProsperoEden** by BlackBearReloaded: the launcher's design, artwork, fonts, bitmap font
+  engine, folder browser and software drawing through SDL, and the **PS5 Native App
+  Boilerplate**: runtime, packaging tool, sandbox elevation.
+- **Dimok**: the Wii U Homebrew Launcher's background (homebrew_launcher and libgui, GPL-3.0), which
+  the launcher draws behind ProsperoEden's layout (`tools/render-background.py`).
 - **Mihawk-99**: RADV on the PS5 (PS5_Mesa, PS5_Vulkan, the payload SDK fork), with
   **mpereiraesaa**'s contributions.
 - **John Törnblom** (ps5-payload-dev): the PS5 payload SDK, and **pacbrew**'s PS5 libraries.

@@ -23,7 +23,7 @@
     },
     {
       "name": "pacbrew",
-      "about": "Prebuilt PS5 libraries from pacbrew v0.40.2: curl, OpenSSL, zlib, zstd, libpng, glm, fmt 12.1, FreeType, RmlUi 6.2",
+      "about": "Prebuilt PS5 libraries from pacbrew v0.40.2: curl, OpenSSL, zlib, zstd, libpng, glm, fmt 12.1, FreeType, RmlUi 6.2, SDL2 (the launcher's video) and libiconv",
       "kind": "archive",
       "url": "https://github.com/ps5-payload-dev/pacbrew-repo/releases/download/v0.40.2/ps5-payload-dev.tar.gz",
       "sha256": "a85f65de418a8e6a898c6c3e3c870d50fff7618a200e4dd59ea9692af6ecec4d",
@@ -74,15 +74,6 @@
       "commit": "24b5e7a8b27f42fa16b96fc70aade9106cf7102f",
       "path": ".deps/rapidjson",
       "creates": ".deps/rapidjson/include/rapidjson/rapidjson.h"
-    },
-    {
-      "name": "rmlui",
-      "about": "RmlUi 6.2 sources, for the Vulkan render backend (the library itself comes from pacbrew)",
-      "kind": "git",
-      "url": "https://github.com/mikke89/RmlUi.git",
-      "commit": "2230d1a6e8e0848ed87a5761e2a5160b2a175ba4",
-      "path": ".deps/RmlUi-6.2",
-      "creates": ".deps/RmlUi-6.2/Backends/RmlUi_Renderer_VK.cpp"
     },
     {
       "name": "ps5-mesa",
